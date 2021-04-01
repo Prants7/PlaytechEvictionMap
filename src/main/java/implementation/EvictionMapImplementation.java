@@ -1,5 +1,7 @@
 package implementation;
 
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +19,7 @@ public class EvictionMapImplementation<Key, Value> implements EvictionMap<Key, V
     }
 
     private void putScript(Key keyElement, Value valueElement) {
+        //System.out.println("Put script, currentTime seconds: "+this.getCurrentTime().getSecond()+" set timeout: "+this.giveNewTimeOutMoment().getSecond());
         if(this.hasKey(keyElement)) {
             this.changeOldElement(keyElement, valueElement);
         }
@@ -47,8 +50,16 @@ public class EvictionMapImplementation<Key, Value> implements EvictionMap<Key, V
         this.elementStorage.add(new StoredValue<>(keyElement, valueElement, this.giveNewTimeOutMoment()));
     }
 
-    private long giveNewTimeOutMoment() {
-        return 0;
+    private LocalTime giveNewTimeOutMoment() {
+        return this.getCurrentTime().plus(this.timeOutSeconds, ChronoUnit.SECONDS);
+    }
+
+    private LocalTime getCurrentTime() {
+        return LocalTime.now();
+    }
+
+    private boolean isStoredValueFresh(StoredValue<Key, Value> valueToCheck) {
+        return this.getCurrentTime().isBefore(valueToCheck.getTimeOutMoment());
     }
 
     private void changeOldElement(Key keyElement, Value newValue) {
@@ -63,6 +74,9 @@ public class EvictionMapImplementation<Key, Value> implements EvictionMap<Key, V
     public Value get(Key searchKey) {
         StoredValue<Key, Value> foundValue = this.getStoredValueWithKey(searchKey);
         if(foundValue == null) {
+            return null;
+        }
+        if(!isStoredValueFresh(foundValue)) {
             return null;
         }
         return foundValue.getValue();

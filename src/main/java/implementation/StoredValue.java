@@ -1,11 +1,13 @@
 package implementation;
 
+import java.time.LocalTime;
+
 public class StoredValue<Key, Value> {
     private Key savedKey;
     private Value savedValue;
-    private long timeOutMoment;
+    private LocalTime timeOutMoment;
 
-    public StoredValue(Key key, Value value, long timeOutMoment) {
+    public StoredValue(Key key, Value value, LocalTime timeOutMoment) {
         this.savedKey = key;
         this.savedValue = value;
         this.timeOutMoment = timeOutMoment;
@@ -23,9 +25,13 @@ public class StoredValue<Key, Value> {
         return this.savedValue;
     }
 
-    public boolean saveNewValue(Value newSavedValue, long newTimeOut) {
+    public boolean saveNewValue(Value newSavedValue, LocalTime newTimeOut) {
         this.savedValue = newSavedValue;
         this.timeOutMoment = newTimeOut;
         return true;
+    }
+
+    public LocalTime getTimeOutMoment() {
+        return this.timeOutMoment;
     }
 }

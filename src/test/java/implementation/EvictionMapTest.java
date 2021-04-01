@@ -49,4 +49,27 @@ class EvictionMapTest {
         assertNull(element.get("key"));
     }
 
+    @Test
+    public void elementValueChangingResetsExpirationTime() {
+        EvictionMap<String, String> element = this.getTestableElementStringValues(1);
+        element.put("key", "value");
+        try {
+            Thread.sleep(700);
+        }
+        catch (Exception exception) {
+            System.out.println("Test was interrupted");
+            fail();
+        }
+        element.put("key", "value2");
+
+        try {
+            Thread.sleep(500);
+        }
+        catch (Exception exception) {
+            System.out.println("Test was interrupted");
+            fail();
+        }
+        assertEquals("value2", element.get("key"));
+    }
+
 }
