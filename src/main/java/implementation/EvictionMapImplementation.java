@@ -7,10 +7,11 @@ import java.util.List;
 
 public class EvictionMapImplementation<Key, Value> implements EvictionMap<Key, Value> {
     private long timeOutSeconds;
-    private List<StoredValue<Key, Value>> elementStorage = new ArrayList<>();
+    private StorageElement<Key, Value> storageElement;
 
     public EvictionMapImplementation(long timeOutSeconds) {
         this.timeOutSeconds = timeOutSeconds;
+        this.storageElement = new StorageElement<>();
     }
 
     @Override
@@ -19,35 +20,11 @@ public class EvictionMapImplementation<Key, Value> implements EvictionMap<Key, V
     }
 
     private void putScript(Key keyElement, Value valueElement) {
-        //System.out.println("Put script, currentTime seconds: "+this.getCurrentTime().getSecond()+" set timeout: "+this.giveNewTimeOutMoment().getSecond());
-        if(this.hasKey(keyElement)) {
-            this.changeOldElement(keyElement, valueElement);
-        }
-        else {
-            this.addNewElement(keyElement, valueElement);
-        }
+        this.storageElement.put(keyElement, this.makeAndGetNewExpirationPair(valueElement));
     }
 
-    private boolean hasKey(Key searchedKey) {
-        for(StoredValue<Key, Value> oneStorageUnit : this.elementStorage) {
-            if(oneStorageUnit.matchesKey(searchedKey)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private StoredValue<Key, Value> getStoredValueWithKey(Key searchedKey) {
-        for(StoredValue<Key, Value> oneStorageUnit : this.elementStorage) {
-            if(oneStorageUnit.matchesKey(searchedKey)) {
-                return oneStorageUnit;
-            }
-        }
-        return null;
-    }
-
-    private void addNewElement(Key keyElement, Value valueElement) {
-        this.elementStorage.add(new StoredValue<>(keyElement, valueElement, this.giveNewTimeOutMoment()));
+    private ValueAndExpirationPair<Value> makeAndGetNewExpirationPair(Value insertedValue) {
+        return new ValueAndExpirationPair<>(insertedValue, this.giveNewTimeOutMoment());
     }
 
     private LocalTime giveNewTimeOutMoment() {
@@ -58,27 +35,22 @@ public class EvictionMapImplementation<Key, Value> implements EvictionMap<Key, V
         return LocalTime.now();
     }
 
-    private boolean isStoredValueFresh(StoredValue<Key, Value> valueToCheck) {
-        return this.getCurrentTime().isBefore(valueToCheck.getTimeOutMoment());
-    }
-
-    private void changeOldElement(Key keyElement, Value newValue) {
-        StoredValue<Key, Value> foundStoredElement = this.getStoredValueWithKey(keyElement);
-        if(foundStoredElement == null) {
-            return;
-        }
-        foundStoredElement.saveNewValue(newValue, this.giveNewTimeOutMoment());
+    private boolean isValueAndExpirationPairFresh(ValueAndExpirationPair<Value> elementToCheck) {
+        return this.getCurrentTime().isBefore(elementToCheck.getExpirationMoment());
     }
 
     @Override
     public Value get(Key searchKey) {
-        StoredValue<Key, Value> foundValue = this.getStoredValueWithKey(searchKey);
-        if(foundValue == null) {
-            return null;
+        return this.getScript(searchKey);
+    }
+
+    private Value getScript(Key searchKey) {
+        ValueAndExpirationPair<Value> searchResult = this.storageElement.get(searchKey);
+        if(searchResult != null) {
+            if(isValueAndExpirationPairFresh(searchResult)) {
+                return searchResult.getValue();
+            }
         }
-        if(!isStoredValueFresh(foundValue)) {
-            return null;
-        }
-        return foundValue.getValue();
+        return null;
     }
 }
