@@ -1,17 +1,16 @@
 package implementation;
 
 import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
 
 public class EvictionMapImplementation<Key, Value> implements EvictionMap<Key, Value> {
     private long timeOutSeconds;
     private StorageElement<Key, Value> storageElement;
+    private TimeBox wrappedTimeBox;
 
     public EvictionMapImplementation(long timeOutSeconds) {
         this.timeOutSeconds = timeOutSeconds;
         this.storageElement = new StorageElement<>();
+        this.wrappedTimeBox = new TimeBox();
     }
 
     @Override
@@ -28,11 +27,11 @@ public class EvictionMapImplementation<Key, Value> implements EvictionMap<Key, V
     }
 
     private LocalTime giveNewTimeOutMoment() {
-        return this.getCurrentTime().plus(this.timeOutSeconds, ChronoUnit.SECONDS);
+        return this.wrappedTimeBox.getTimeOutInFutureBySeconds(this.timeOutSeconds);
     }
 
     private LocalTime getCurrentTime() {
-        return LocalTime.now();
+        return this.wrappedTimeBox.getCurrentTimeMoment();
     }
 
     private boolean isValueAndExpirationPairFresh(ValueAndExpirationPair<Value> elementToCheck) {
