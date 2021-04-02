@@ -12,11 +12,11 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class StorageElementTest {
 
-    public StorageElement<String, String> getTestableStorageElement() {
+    private StorageElement<String, String> getTestableStorageElement() {
         return new StorageElement<String, String>();
     }
 
-    public ValueAndExpirationPair<String> getTestTableValueAndExpirationPair(
+    private ValueAndExpirationPair<String> getTestTableValueAndExpirationPair(
             String valueString,
             LocalTime expirationTime) {
         return new ValueAndExpirationPair<>(valueString, expirationTime);

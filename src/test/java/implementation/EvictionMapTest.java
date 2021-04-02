@@ -10,11 +10,33 @@ class EvictionMapTest {
         return new EvictionMapImplementation<String, String>(seconds);
     }
 
+    private EvictionMap<Integer, String>  getTestableElementWithADifferentKeyType(long seconds) {
+        return new EvictionMapImplementation<>(seconds);
+    }
+
+    private EvictionMap<String, Integer>  getTestableElementWithADifferentValueTyoe(long seconds) {
+        return new EvictionMapImplementation<>(seconds);
+    }
+
     @Test
     public void canPutAndReturnElementsFromMap() {
         EvictionMap<String, String> element = this.getTestableElementStringValues(30);
         element.put("key", "value");
         assertEquals("value", element.get("key"));
+    }
+
+    @Test
+    public void canMakeAndUseMapsWithDifferentKeyType() {
+        EvictionMap<Integer, String> elementIntegerKey  = this.getTestableElementWithADifferentKeyType(30);
+        elementIntegerKey.put(5, "value");
+        assertEquals("value", elementIntegerKey.get(5));
+    }
+
+    @Test
+    public void canMakeAndUseMapsWithDifferentValueType() {
+        EvictionMap<String, Integer> elementIntegerKey  = this.getTestableElementWithADifferentValueTyoe(30);
+        elementIntegerKey.put("key", 5);
+        assertEquals(5, elementIntegerKey.get("key"));
     }
 
     @Test
