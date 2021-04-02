@@ -1,6 +1,6 @@
 package implementation;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 public class EvictionMapImplementation<Key, Value> implements EvictionMap<Key, Value> {
     private long timeOutSeconds;
@@ -26,11 +26,11 @@ public class EvictionMapImplementation<Key, Value> implements EvictionMap<Key, V
         return new ValueAndExpirationPair<>(insertedValue, this.giveNewTimeOutMoment());
     }
 
-    private LocalTime giveNewTimeOutMoment() {
+    private LocalDateTime giveNewTimeOutMoment() {
         return this.wrappedTimeBox.getTimeOutInFutureBySeconds(this.timeOutSeconds);
     }
 
-    private LocalTime getCurrentTime() {
+    private LocalDateTime getCurrentTime() {
         return this.wrappedTimeBox.getCurrentTimeMoment();
     }
 
