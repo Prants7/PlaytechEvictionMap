@@ -1,5 +1,7 @@
 package implementation;
 
+import dataCleaner.DataCleaner;
+import dataCleaner.InstantExpiringValueCleaner;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -10,12 +12,20 @@ class EvictionMapTest {
         return new EvictionMapImplementation<String, String>(seconds);
     }
 
+    private EvictionMap<String, String> getTestableElementStringValues(long seconds, DataCleaner<String> insertDataCleaner) {
+        return new EvictionMapImplementation<>(seconds, insertDataCleaner);
+    }
+
     private EvictionMap<Integer, String>  getTestableElementWithADifferentKeyType(long seconds) {
         return new EvictionMapImplementation<>(seconds);
     }
 
     private EvictionMap<String, Integer>  getTestableElementWithADifferentValueTyoe(long seconds) {
         return new EvictionMapImplementation<>(seconds);
+    }
+
+    private InstantExpiringValueCleaner<String> getTestableInstantDataCleaner() {
+        return new InstantExpiringValueCleaner<>();
     }
 
     @Test
@@ -92,6 +102,44 @@ class EvictionMapTest {
             fail();
         }
         assertEquals("value2", element.get("key"));
+    }
+
+    @Test
+    public void elementsCleanedAfterExpireWithInstantCleaner() {
+        EvictionMap<String, String> element = this.getTestableElementStringValues(3, this.getTestableInstantDataCleaner());
+        element.put("key", "value");
+        assertEquals(1, element.getAmoundOfSavedValues());
+        try {
+            Thread.sleep(4100);
+        }
+        catch (Exception exception) {
+            System.out.println("Test was interrupted");
+            fail();
+        }
+        assertNull(element.get("key"));
+        assertEquals(0, element.getAmoundOfSavedValues());
+    }
+
+    @Test
+    public void elementsCleanedAfterExpireWithInstantCleanerSeveralEntriesVersion() {
+        EvictionMap<String, String> element = this.getTestableElementStringValues(3, this.getTestableInstantDataCleaner());
+        element.put("key1", "value1");
+        try {
+            Thread.sleep(2000);
+        }
+        catch (Exception exception) {
+            System.out.println("Test was interrupted");
+            fail();
+        }
+        element.put("key2", "value2");
+        try {
+            Thread.sleep(4100);
+        }
+        catch (Exception exception) {
+            System.out.println("Test was interrupted");
+            fail();
+        }
+        assertEquals(0, element.getAmoundOfSavedValues());
     }
 
 }

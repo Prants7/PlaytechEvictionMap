@@ -48,11 +48,15 @@ public class StorageElement<Key, Value> {
     }
 
     private boolean performRemovalOfOneExpiredKey(Key oneKey, LocalDateTime currentTime) {
-        if(this.storageLocation.get(oneKey).getExpirationMoment().isBefore(currentTime)) {
-            this.storageLocation.remove(oneKey);
-            return true;
+        if(currentTime.isBefore(this.storageLocation.get(oneKey).getExpirationMoment())) {
+            return false;
         }
-        return false;
+
+        /*if(!this.storageLocation.get(oneKey).getExpirationMoment().isBefore(currentTime)) {
+            return false;
+        }*/
+        this.storageLocation.remove(oneKey);
+        return true;
     }
 
     public int getStorageSize() {
@@ -61,5 +65,9 @@ public class StorageElement<Key, Value> {
 
     public LocalDateTime getLastCleanUpTime() {
         return this.lastCleanUpTime;
+    }
+
+    public boolean callForCheckCleanOnKeyValue(Key oneKey, LocalDateTime currentTime) {
+        return this.performRemovalOfOneExpiredKey(oneKey, currentTime);
     }
 }

@@ -1,16 +1,34 @@
 package implementation;
 
+import dataCleaner.DataCleaner;
+
 import java.time.LocalDateTime;
 
 public class EvictionMapImplementation<Key, Value> implements EvictionMap<Key, Value> {
     private long timeOutSeconds;
     private StorageElement<Key, Value> storageElement;
     private TimeBox wrappedTimeBox;
+    private DataCleaner<Key> addedDataCleaner;
 
     public EvictionMapImplementation(long timeOutSeconds) {
+        setUpStandardValues(timeOutSeconds);
+    }
+
+    public EvictionMapImplementation(long timeOutSeconds, DataCleaner<Key> newDataCleaner) {
+        setUpStandardValues(timeOutSeconds);
+        this.connectDataCleaner(newDataCleaner);
+    }
+
+    private void setUpStandardValues(long timeOutSeconds) {
         this.timeOutSeconds = timeOutSeconds;
         this.storageElement = new StorageElement<>();
         this.wrappedTimeBox = new TimeBox();
+    }
+
+    private void connectDataCleaner(DataCleaner<Key> newDataCleaner) {
+        this.addedDataCleaner = newDataCleaner;
+        this.addedDataCleaner.addAccessToStorageElement(this.storageElement);
+        this.addedDataCleaner.insertCurrentlyUsedTimeBox(this.wrappedTimeBox);
     }
 
     @Override
@@ -19,7 +37,11 @@ public class EvictionMapImplementation<Key, Value> implements EvictionMap<Key, V
     }
 
     private void putScript(Key keyElement, Value valueElement) {
-        this.storageElement.put(keyElement, this.makeAndGetNewExpirationPair(valueElement));
+        ValueAndExpirationPair<Value> newPair = this.makeAndGetNewExpirationPair(valueElement);
+        this.storageElement.put(keyElement, newPair);
+        if(this.hasDataCleaner()) {
+            this.addedDataCleaner.announceNewElement(keyElement, newPair.getExpirationMoment());
+        }
     }
 
     private ValueAndExpirationPair<Value> makeAndGetNewExpirationPair(Value insertedValue) {
@@ -51,5 +73,13 @@ public class EvictionMapImplementation<Key, Value> implements EvictionMap<Key, V
             }
         }
         return null;
+    }
+
+    private boolean hasDataCleaner() {
+        return this.addedDataCleaner != null;
+    }
+
+    public int getAmoundOfSavedValues() {
+        return this.storageElement.getStorageSize();
     }
 }
