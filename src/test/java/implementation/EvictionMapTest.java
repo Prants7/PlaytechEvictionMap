@@ -6,24 +6,52 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Main test class for whatever implementation of Eviction map is setup in the private methods
+ */
 class EvictionMapTest {
 
+    /**
+     * For assigning the specific EvictionMap instance for testing
+     * @param seconds expiration seconds assigned to the new object
+     * @return instance of EvictionMap that will be tested
+     */
     private EvictionMap<String, String> getTestableElementStringValues(long seconds) {
         return new EvictionMapImplementation<String, String>(seconds);
     }
 
+    /**
+     * For assigning the specific EvictionMap instance for testing
+     * @param seconds expiration seconds assigned to the new object
+     * @param insertDataCleaner DataCleaner object assigned to the new map
+     * @return instance of EvictionMap for testing
+     */
     private EvictionMap<String, String> getTestableElementStringValues(long seconds, DataCleaner<String> insertDataCleaner) {
         return new EvictionMapImplementation<>(seconds, insertDataCleaner);
     }
 
+    /**
+     * Used in a test that checks if different key elements still work
+     * @param seconds expiration seconds assigned to the new object
+     * @return instance of EvictionMap for testing
+     */
     private EvictionMap<Integer, String>  getTestableElementWithADifferentKeyType(long seconds) {
         return new EvictionMapImplementation<>(seconds);
     }
 
+    /**
+     * Used in a test that checks if different value types still work
+     * @param seconds expiration seconds assigned to the new object
+     * @return instance of EvictionMap for testing
+     */
     private EvictionMap<String, Integer>  getTestableElementWithADifferentValueTyoe(long seconds) {
         return new EvictionMapImplementation<>(seconds);
     }
 
+    /**
+     * Getter for InstantDataCleaner type of DataCleaner used in a test
+     * @return InstantDataCleaner for String type of keys
+     */
     private InstantExpiringValueCleaner<String> getTestableInstantDataCleaner() {
         return new InstantExpiringValueCleaner<>();
     }
@@ -108,7 +136,7 @@ class EvictionMapTest {
     public void elementsCleanedAfterExpireWithInstantCleaner() {
         EvictionMap<String, String> element = this.getTestableElementStringValues(3, this.getTestableInstantDataCleaner());
         element.put("key", "value");
-        assertEquals(1, element.getAmoundOfSavedValues());
+        assertEquals(1, element.getAmountOfSavedValues());
         try {
             Thread.sleep(4100);
         }
@@ -117,7 +145,7 @@ class EvictionMapTest {
             fail();
         }
         assertNull(element.get("key"));
-        assertEquals(0, element.getAmoundOfSavedValues());
+        assertEquals(0, element.getAmountOfSavedValues());
     }
 
     @Test
@@ -139,7 +167,7 @@ class EvictionMapTest {
             System.out.println("Test was interrupted");
             fail();
         }
-        assertEquals(0, element.getAmoundOfSavedValues());
+        assertEquals(0, element.getAmountOfSavedValues());
     }
 
 }

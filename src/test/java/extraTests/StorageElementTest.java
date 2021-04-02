@@ -6,26 +6,36 @@ import implementation.ValueAndExpirationPair;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+/**
+ * Test class that tests StorageElement that fills the role of memory access for a EvictionMapImplementation class
+ */
 public class StorageElementTest {
     private TimeBox wrappedTimeBox = new TimeBox();
 
+    /**
+     * For getting a testable storage element that used String keys and String Values
+     * @return new instance of StorageElement ready for testing
+     */
     private StorageElement<String, String> getTestableStorageElement() {
         return new StorageElement<String, String>();
     }
 
+    /**
+     * For getting a testable ValueAndExpirationPair with String type of values
+     * @param valueString Value stored in the return object
+     * @param expirationTime Expiration date assigned to the return object
+     * @return new ValueAndExpirationPair type of object
+     */
     private ValueAndExpirationPair<String> getTestTableValueAndExpirationPair(
             String valueString,
             LocalDateTime expirationTime) {
         return new ValueAndExpirationPair<>(valueString, expirationTime);
     }
-
-
 
     @Test
     public void putAndGetWorkForStorageElement() {

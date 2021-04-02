@@ -15,6 +15,10 @@ This class can be made into an object with 2 different constructors.
 First of them has only one input and that is the amount of seconds after witch the data becomes inaccessible.
 The second constructor also accepts an element of DataCleaner<Key> type. The project has an InstantExpiringValueCleaner
 class of cleaner that will make sure that all expired values will be removed from memory in about second or two.
+(WARNING! due to not having enough coding time, this cleaner module doesn't work great with key values that get added
+at the same time. Each one of these expiring pairs will slow down the cleaning process. Due to this, situations where
+there are alot of put calls at the same time and short expiration times, it will take time for the actual database to
+scrub out those pesky expired key value pairs from memory, the map itself will still return null for expired values.)
 
 In order to get more control over data cleaning its possible to write extra modules that implement the DataCleanerBase
 class and can call either
